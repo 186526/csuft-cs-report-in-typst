@@ -1,38 +1,5 @@
-#import "@preview/zebraw:0.4.4": zebraw
+#import "common.typ": *
 #import "../config.typ": 学生信息
-
-#let 中文字体 = "SimSun"
-#let 西文字体 = "Times New Roman"
-#let 代码字体 = ("Fira Code", "Sarasa Mono SC")
-#let 字体 = (西文字体, 中文字体)
-#let 正文字号 = 10.5pt
-#let 代码字号 = 9.5pt
-#let 封面字号 = 15pt
-#let 边框 = 0.5pt
-
-// ---------- 行距 ----------
-// 原 Word 模板正文节启用了行网格 docGrid linePitch="312" twips，
-// 也就是每一行固定 312/20 = 15.6pt，与行内是中文还是西文无关。
-//
-// Typst 默认按行内字体的包围盒算行高：纯中文约 15.6pt、中英混排约 14.9pt、
-// 纯西文约 13.8pt，会造成行距忽大忽小。这里用 top-edge / bottom-edge 把每种
-// 字体都强制成同一个 1em 高的盒子，再补 leading 凑到 15.6pt。
-// 上下取值 0.85em / -0.15em（两者相差仍为 1em，行距不受影响），可让中文的
-// 墨迹正好落在盒子垂直中心，单元格垂直居中时观感更准。
-#let 字盒上 = 0.85em
-#let 字盒下 = -0.15em
-#let 行距 = 0.4857em   // 字号 10.5pt 时约 5.1pt，1em + 5.1pt = 15.6pt
-
-// 统一的正文文字设置（行距始终为字号的 1.4857 倍）。
-// 写成 `正文样式[...]` 包住内容的形式：Typst 里 `#正文样式()` 这种函数调用
-// 不会把函数体内的 set 规则泄漏给调用方，只有直接写 set 或包住内容才生效。
-#let 正文样式(size: 正文字号, body) = {
-  set text(font: 字体, size: size, top-edge: 字盒上, bottom-edge: 字盒下)
-  // 原模板段落间距为 0，行距全部由行网格控制，段间与行内都是 15.6pt，
-  // 所以把段间距设成与行内 leading 相同的值。
-  set par(leading: 行距, spacing: 行距)
-  body
-}
 
 // ---------- 封面艺术字图片与尺寸（cm，与原 Word 模板一致） ----------
 // 顶部“数据结构”4 字
@@ -52,70 +19,12 @@
   ("../assets/cover-10.png", 1.09, 1.39),
 )
 
-// ============================================================
-//  内部工具
-// ============================================================
-
-// 竖排文字（s 可以是字符串或 content）
-#let 竖排(s, 字距: 0.05em) = {
-  let t = if type(s) == str { s } else { s.text }
-  stack(dir: ttb, spacing: 字距, ..t.clusters().map(c => [#c]))
+// 针对数据结构实验，字符串源代码默认使用 C 语言高亮
+#let 源代码块(x, lang: "c") = {
+  if type(x) == str { raw(x, lang: lang, block: true) } else { x }
 }
 
-// 标签格：水平 + 垂直居中，高度取 max(设定最小高度, 内容实际高度)。
-// 注意 context 必须放在 cell 的内容里，不能包住 table.cell，否则会打乱表格栅格。
-#let 标签格(h, body, ..args) = table.cell(
-  align: center + horizon,
-  inset: (x: 4pt, y: 2pt),
-  ..args,
-)[
-  #context {
-    let 高 = calc.max(h, measure(body).height + 6pt)
-    block(height: 高, align(center + horizon, body))
-  }
-]
 
-// 竖排标签格：同标签格，文字竖排
-#let 竖标签格(h, body, ..args) = table.cell(
-  align: center + horizon,
-  inset: (x: 4pt, y: 2pt),
-  ..args,
-)[
-  #context {
-    let 竖 = 竖排(body)
-    let 高 = calc.max(h, measure(竖).height + 6pt)
-    block(height: 高, align(center + horizon, 竖))
-  }
-]
-
-// 信息格：用于年级、姓名、实验名称等单行元数据（水平 + 垂直居中）
-#let 信息格(body, ..args) = table.cell(
-  align: center + horizon,
-  inset: (x: 4pt, y: 2pt),
-  ..args,
-)[#body]
-
-// 正文格：用于实验内容、实验环境、实验目的、实验结果等大段正文/列表/代码（靠左上对齐，留出阅读内边距）
-#let 正文格(body, ..args) = table.cell(
-  align: left + top,
-  inset: (x: 8pt, y: 6pt),
-  ..args,
-)[#body]
-
-// 兼容别名
-#let 内容格 = 信息格
-
-// 源代码：字符串自动包成 C 代码块，其余原样使用
-#let 源代码块(x) = {
-  if type(x) == str { raw(x, lang: "c", block: true) } else { x }
-}
-
-// 下划线填空
-#let 填空(width, value) = box(
-  width: width,
-  height: 1em,
-  stroke: (bottom: 0.5pt + black),
-)[#align(center)[#value]]
 
 // ============================================================
 //  封面
@@ -212,33 +121,8 @@
   let 评定高 = 5.24cm // 2970 twips
 
   正文样式[#{
-    show raw.where(block: true): it => {
-      set text(font: 代码字体, size: 代码字号)
-      show grid: g => {
-        if g.columns == () and g.stroke == (:) {
-          if (
-            g.children.len() > 0
-              and g.children.at(0).has("body")
-              and g.children.at(0).body.has("width")
-              and g.children.at(0).body.width != auto
-          ) {
-            grid(
-              rows: g.rows,
-              stroke: (left: 0.6pt + luma(180)),
-              ..g.children,
-            )
-          } else {
-            g
-          }
-        } else {
-          g
-        }
-      }
-      zebraw(
-        inset: (x: 8pt, y: 3.5pt),
-      )[#it]
-    }
-    show raw.where(block: false): set text(font: 代码字体)
+    show: 代码块样式
+
 
     table(
       columns: 列,

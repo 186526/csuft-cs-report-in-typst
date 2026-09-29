@@ -1,4 +1,4 @@
-#import "lib/data-stru-report.typ": 实验报告
+#import "../lib/data-stru-report.typ": 实验报告
 
 #实验报告(
   实验名称: "顺序表的实现与基本操作",
@@ -24,7 +24,7 @@
   ],
 
   // 直接读取 .c 文件，字符串会自动包成 C 代码块
-  源代码: read("./code/lab-demo1.c"),
+  源代码: read("code/lab-demo1.c"),
 
   实验结果分析及心得体会: [
     *实验运行结果或者是验证性的结果:*
