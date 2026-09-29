@@ -1,20 +1,6 @@
-// ============================================================
-//  report.typ —— 中南林业科技大学 数据结构实验报告 Typst 模板
-// ------------------------------------------------------------
-//  用法：
-//    #import "report.typ": 实验报告
-//    #实验报告(
-//      实验名称: "顺序表的实现",
-//      实验内容: [...],
-//      源代码: read("code/lab01.c"),   // 字符串自动包成 C 代码块
-//    )
-//  个人信息在 config.typ 里统一填写，所有报告共用。
-// ============================================================
-
 #import "@preview/zebraw:0.4.4": zebraw
-#import "config.typ": 学生信息
+#import "../config.typ": 学生信息
 
-// ---------- 字体与字号（与原 Word 模板一致） ----------
 #let 中文字体 = "SimSun"
 #let 西文字体 = "Times New Roman"
 #let 代码字体 = ("Fira Code", "Sarasa Mono SC")
@@ -51,19 +37,19 @@
 // ---------- 封面艺术字图片与尺寸（cm，与原 Word 模板一致） ----------
 // 顶部“数据结构”4 字
 #let 封面大图 = (
-  ("assets/cover-01.png", 3.00, 2.75),
-  ("assets/cover-02.png", 2.52, 2.83),
-  ("assets/cover-03.png", 2.46, 2.87),
-  ("assets/cover-04.png", 2.56, 2.84),
+  ("../assets/cover-01.png", 3.00, 2.75),
+  ("../assets/cover-02.png", 2.52, 2.83),
+  ("../assets/cover-03.png", 2.46, 2.87),
+  ("../assets/cover-04.png", 2.56, 2.84),
 )
 // 中部“学生实验报告”6 字
 #let 封面小图 = (
-  ("assets/cover-05.png", 1.08, 1.35),
-  ("assets/cover-06.png", 0.96, 1.14),
-  ("assets/cover-07.png", 1.05, 1.36),
-  ("assets/cover-08.png", 1.36, 1.18),
-  ("assets/cover-09.png", 1.18, 1.22),
-  ("assets/cover-10.png", 1.09, 1.39),
+  ("../assets/cover-05.png", 1.08, 1.35),
+  ("../assets/cover-06.png", 0.96, 1.14),
+  ("../assets/cover-07.png", 1.05, 1.36),
+  ("../assets/cover-08.png", 1.36, 1.18),
+  ("../assets/cover-09.png", 1.18, 1.22),
+  ("../assets/cover-10.png", 1.09, 1.39),
 )
 
 // ============================================================
@@ -230,7 +216,12 @@
       set text(font: 代码字体, size: 代码字号)
       show grid: g => {
         if g.columns == () and g.stroke == (:) {
-          if g.children.len() > 0 and g.children.at(0).has("body") and g.children.at(0).body.has("width") and g.children.at(0).body.width != auto {
+          if (
+            g.children.len() > 0
+              and g.children.at(0).has("body")
+              and g.children.at(0).body.has("width")
+              and g.children.at(0).body.width != auto
+          ) {
             grid(
               rows: g.rows,
               stroke: (left: 0.6pt + luma(180)),

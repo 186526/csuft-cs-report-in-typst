@@ -3,3 +3,5 @@ config.typ
 
 lab*.typ
 !lab-demo.typ
+
+project/

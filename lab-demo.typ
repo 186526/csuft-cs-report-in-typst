@@ -1,4 +1,4 @@
-#import "report.typ": 实验报告
+#import "lib/data-stru-report.typ": 实验报告
 
 #实验报告(
   实验名称: "顺序表的实现与基本操作",
