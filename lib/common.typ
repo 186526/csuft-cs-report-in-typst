@@ -7,6 +7,7 @@
 #let 西文字体 = "Times New Roman"
 #let 代码字体 = ("Fira Code", "Sarasa Mono SC")
 #let 字体 = (西文字体, 中文字体)
+#let 黑体 = (西文字体, "SimHei", 中文字体)
 
 #let 正文字号 = 10.5pt  // 五号
 #let 代码字号 = 9.5pt

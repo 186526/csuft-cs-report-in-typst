@@ -33,6 +33,10 @@ check_environment() {
     missing_fonts+=("SimSun (中文字体/宋体)")
   fi
 
+  if ! grep -q -F "SimHei" <<< "$available_fonts"; then
+    missing_fonts+=("SimHei (中文字体/黑体，用于标题)")
+  fi
+
   if ! grep -q -F "Times New Roman" <<< "$available_fonts"; then
     missing_fonts+=("Times New Roman (西文字体)")
   fi
