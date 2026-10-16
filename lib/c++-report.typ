@@ -59,19 +59,19 @@
     show figure.caption: it => text(font: 字体, size: 10.5pt, weight: "bold")[#it]
 
     // 标题级别样式（四号/五号加粗，去除缩进，保持合理段距）
-    show heading.where(level: 1): it => block(above: 1.5em, below: 1.0em)[
+    show heading.where(level: 1): it => block(above: 1.2em, below: 0.6em)[
       #set text(font: 字体, size: 四号字号, weight: "bold")
       #set par(first-line-indent: 0pt)
       #it
     ]
 
-    show heading.where(level: 2): it => block(above: 1.2em, below: 0.8em)[
+    show heading.where(level: 2): it => block(above: 1.0em, below: 0.5em)[
       #set text(font: 字体, size: 正文字号, weight: "bold")
       #set par(first-line-indent: 0pt)
       #it
     ]
 
-    show heading.where(level: 3): it => block(above: 1.0em, below: 0.6em)[
+    show heading.where(level: 3): it => block(above: 0.8em, below: 0.4em)[
       #set text(font: 字体, size: 正文字号, weight: "bold")
       #set par(first-line-indent: 0pt)
       #it

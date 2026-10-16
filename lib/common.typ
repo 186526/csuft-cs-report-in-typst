@@ -32,10 +32,12 @@
 #let 字盒下 = -0.15em
 #let 行距 = 0.4857em   // 字号 10.5pt 时约 5.1pt，1em + 5.1pt = 15.6pt
 
-// 统一的正文文字设置（行距始终为字号的 1.4857 倍）
+// 统一的正文文字设置（行距始终为字号的 1.4857 倍，段距独立为 0.6em）
 #let 正文样式(size: 正文字号, body) = {
   set text(font: 字体, size: size, top-edge: 字盒上, bottom-edge: 字盒下)
-  set par(leading: 行距, spacing: 行距)
+  set par(leading: 行距, spacing: 0.6em)
+  set list(spacing: 0.4em)
+  set enum(spacing: 0.4em)
   body
 }
 
@@ -44,7 +46,9 @@
 // ============================================================
 #let 代码块样式(body) = {
   show raw.where(block: true): it => {
-    set text(font: 代码字体, size: 代码字号)
+    // 代码块使用独立行高（cap-height→baseline），不受正文 1em 字盒与段距影响，
+    // 这样不同正文号的模板代码行距一致，且不会被撑得过松。
+    set text(font: 代码字体, size: 代码字号, top-edge: "cap-height", bottom-edge: "baseline")
     show grid: g => {
       if g.columns == () and g.stroke == (:) {
         if (
@@ -65,6 +69,8 @@
         g
       }
     }
+    // 代码块外部上下间距 0.7em（块内行距由 zebraw inset 控制，不受 par 影响）
+    set block(above: 0.7em, below: 0.7em)
     zebraw(
       inset: (x: 8pt, y: 3.5pt),
     )[#it]

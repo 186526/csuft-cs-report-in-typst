@@ -64,21 +64,16 @@
     margin: (top: 2.54cm, bottom: 2.54cm, x: 3.17cm),
     footer: context {
       let page_num = counter(page).display("1")
-      align(center)[#text(font: 字体, size: 10pt)[#page_num]]
+      // 显式指定字盒边界，避免继承正文字盒导致页码位置偏移
+      align(center)[#text(font: 字体, size: 10pt, top-edge: "ascender", bottom-edge: "descender")[#page_num]]
     },
   )
   set text(lang: "zh")
 
   // 正文样式（按规范：正文采用小4号宋体，1.5倍行距，首行缩进 2 字符）
-  set text(font: 字体, size: 小四字号)
-  set par(
-    leading: 0.75em,
-    spacing: 0.75em,
-    justify: true,
-    first-line-indent: 2em,
-  )
-  set list(spacing: 0.75em)
-  set enum(spacing: 0.75em)
+  // 复用 common 的字盒与行距，仅将字号替换为小四
+  show: 正文样式.with(size: 小四字号)
+  set par(justify: true, first-line-indent: 2em)
 
   // 代码块隔行换色与等宽字体规则
   show: 代码块样式
@@ -95,22 +90,22 @@
   show table: set table(inset: (x: 8pt, y: 6pt))
 
   // 标题级别样式（按规范）：
-  // 一级标题：小3号黑体，加粗，段前0.5行，段后0.5行
-  show heading.where(level: 1): it => block(above: 1.5em, below: 0.8em)[
+  // 一级标题：小3号黑体，加粗
+  show heading.where(level: 1): it => block(above: 1.2em, below: 0.6em)[
     #set text(font: 黑体, size: 小三字号, weight: "bold")
     #set par(first-line-indent: 0pt)
     #it
   ]
 
   // 二级标题：4号黑体，加粗
-  show heading.where(level: 2): it => block(above: 1.2em, below: 0.6em)[
+  show heading.where(level: 2): it => block(above: 1.0em, below: 0.5em)[
     #set text(font: 黑体, size: 四号字号, weight: "bold")
     #set par(first-line-indent: 0pt)
     #it
   ]
 
   // 三级标题：小4号黑体，加粗
-  show heading.where(level: 3): it => block(above: 1.0em, below: 0.5em)[
+  show heading.where(level: 3): it => block(above: 0.8em, below: 0.4em)[
     #set text(font: 黑体, size: 小四字号, weight: "bold")
     #set par(first-line-indent: 0pt)
     #it
