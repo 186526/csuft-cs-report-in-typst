@@ -21,23 +21,39 @@
 #let 边框 = 0.5pt
 
 // ============================================================
-//  行距与字盒模型（对齐 Word docGrid 15.6pt 行网格）
+//  行距与字盒模型
 // ============================================================
-// 原 Word 模板正文节启用了行网格 docGrid linePitch="312" twips，
-// 也就是每一行固定 312/20 = 15.6pt，与行内是中文还是西文无关。
-// Typst 默认按行内字体的包围盒算行高：纯中文约 15.6pt、中英混排约 14.9pt、
-// 纯西文约 13.8pt。这里用 top-edge / bottom-edge 把每种字体强制成 1em 高的盒子，
-// 再补 leading 凑到 15.6pt。上下取值 0.85em / -0.15em 可让中文墨迹落在垂直中心。
+// 字盒边界：用 top-edge / bottom-edge 把每种字体强制成 1em 高的盒子，
+// 保证中西文混排与纯中西文在不同行上的基线与行高绝对统一。上下取值 0.85em / -0.15em
+// 可让中文字形墨迹居中对齐。
 #let 字盒上 = 0.85em
 #let 字盒下 = -0.15em
-#let 行距 = 0.4857em   // 字号 10.5pt 时约 5.1pt，1em + 5.1pt = 15.6pt
 
-// 统一的正文文字设置（行距始终为字号的 1.4857 倍，段距独立为 0.6em）
-#let 正文样式(size: 正文字号, body) = {
+// 行距标准常量：
+// 1. 单倍行距（0.4857em）：对齐 Word docGrid linePitch="312" twips（15.6pt 行网格），
+//    字号 10.5pt 时行高 15.6pt（1em + 5.1pt），适用于紧凑表格单元格（如数据结构登记表）。
+// 2. 一点二五倍行距（0.625em）：字号 10.5pt 时行高约 17.1pt，字号 12pt 时行高约 19.5pt，阅读适中。
+// 3. 一点五倍行距（0.75em）：中南林业科技大学实验报告/课程设计标准行距（对应 Word 1.5 倍行距），
+//    字号 12pt（小四）时行高 21pt（1em + 9pt），字号 10.5pt（五号）时行高 18.4pt。
+#let 单倍行距 = 0.4857em
+#let 一点二五倍行距 = 0.625em
+#let 一点五倍行距 = 0.75em
+
+// 默认正文行距采用高校实验报告主流的 1.5 倍行距（0.75em）
+#let 行距 = 一点五倍行距
+
+// 统一的正文文字设置（支持自定义字号、行距、段距与列表间距）
+#let 正文样式(
+  size: 正文字号,
+  leading: 行距,
+  spacing: 0.75em,
+  list-spacing: 0.45em,
+  body,
+) = {
   set text(font: 字体, size: size, top-edge: 字盒上, bottom-edge: 字盒下)
-  set par(leading: 行距, spacing: 0.6em)
-  set list(spacing: 0.4em)
-  set enum(spacing: 0.4em)
+  set par(leading: leading, spacing: spacing)
+  set list(spacing: list-spacing)
+  set enum(spacing: list-spacing)
   body
 }
 
@@ -69,11 +85,30 @@
         g
       }
     }
-    // 代码块外部上下间距 0.7em（块内行距由 zebraw inset 控制，不受 par 影响）
-    set block(above: 0.7em, below: 0.7em)
-    zebraw(
-      inset: (x: 8pt, y: 3.5pt),
-    )[#it]
+    let is-code = it.lang != none and it.lang != "text" and it.lang != "txt"
+    if is-code {
+      set block(above: 0.4em, below: 0.4em)
+      zebraw(
+        inset: (x: 8pt, y: 2.8pt),
+        lang: true,
+      )[#it]
+    } else {
+      // 终端/报错/纯文本输出：无行号轻量控制台样式，整洁紧凑
+      set block(above: 0.25em, below: 0.25em)
+      block(
+        fill: rgb("#f8fafc"),
+        stroke: 0.5pt + rgb("#e2e8f0"),
+        radius: 3pt,
+        inset: (x: 8pt, y: 4pt),
+        width: 100%,
+        clip: true,
+        {
+          set text(font: 代码字体, size: 0.9em)
+          set par(leading: 0.45em, justify: false)
+          it.lines.map(l => l.body).join([\ ])
+        },
+      )
+    }
   }
   show raw.where(block: false): set text(font: 代码字体)
   body
@@ -151,3 +186,62 @@
 
 // 兼容别名
 #let 内容格 = 信息格
+
+// ============================================================
+//  连续正文报告组件
+// ============================================================
+#let 报告标题(标题, 标题字体) = {
+  if 标题 != "" {
+    align(center)[
+      #v(0.2cm)
+      #text(font: 标题字体, size: 二号字号, weight: "bold")[#标题]
+      #v(0.6cm)
+    ]
+  }
+}
+
+#let 报告信息栏(信息) = block(width: 100%)[
+  #set text(font: 字体, size: 四号字号)
+  #set par(first-line-indent: 0pt, leading: 1.2em)
+  #grid(
+    columns: (auto, 1fr, 3em, auto, 1fr),
+    align: horizon,
+    [课程名称：], 下划线字段(信息.课程),
+    [],
+    [实验日期：], 下划线字段(信息.日期),
+  )
+  #v(0.4cm)
+  #grid(
+    columns: (auto, 1fr, 2em, auto, 1fr, 2em, auto, 1fr),
+    align: horizon,
+    [班#h(1em)级：], 下划线字段(信息.班级),
+    [],
+    [姓#h(1em)名：], 下划线字段(信息.姓名),
+    [],
+    [学#h(1em)号：], 下划线字段(信息.学号),
+  )
+  #if "指导教师" in 信息 and 信息.指导教师 != "" {
+    v(0.4cm)
+    grid(
+      columns: (auto, 1fr),
+      align: horizon,
+      [指导教师：], 下划线字段(信息.指导教师),
+    )
+  }
+  #v(0.8cm)
+]
+
+#let 报告小节(结构化小节, 序号列表, 分页小节: ()) = {
+  let sec_idx = 0
+  for (sec_title, sec_content) in 结构化小节 {
+    if sec_content != none and sec_content != [] {
+      if sec_title in 分页小节 {
+        pagebreak()
+      }
+      sec_idx += 1
+      let num_str = if sec_idx <= 序号列表.len() { 序号列表.at(sec_idx - 1) } else { str(sec_idx) }
+      [= #num_str、#sec_title]
+      sec_content
+    }
+  }
+}

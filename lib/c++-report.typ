@@ -49,7 +49,12 @@
   set text(lang: "zh")
 
   // 正文样式与代码块样式
-  正文样式[#{
+  正文样式(
+    size: 正文字号,
+    leading: 一点五倍行距,
+    spacing: 0.75em,
+    list-spacing: 0.75em,
+  )[#{
     show: 代码块样式
 
     // 图片居中
@@ -59,56 +64,28 @@
     show figure.caption: it => text(font: 字体, size: 10.5pt, weight: "bold")[#it]
 
     // 标题级别样式（四号/五号加粗，去除缩进，保持合理段距）
-    show heading.where(level: 1): it => block(above: 1.2em, below: 0.6em)[
-      #set text(font: 字体, size: 四号字号, weight: "bold")
-      #set par(first-line-indent: 0pt)
-      #it
-    ]
+    show heading: set par(first-line-indent: 0pt)
 
-    show heading.where(level: 2): it => block(above: 1.0em, below: 0.5em)[
-      #set text(font: 字体, size: 正文字号, weight: "bold")
-      #set par(first-line-indent: 0pt)
-      #it
-    ]
+    show heading.where(level: 1): set text(font: 字体, size: 四号字号, weight: "bold")
+    show heading.where(level: 1): set block(above: 1.6em, below: 0.8em)
 
-    show heading.where(level: 3): it => block(above: 0.8em, below: 0.4em)[
-      #set text(font: 字体, size: 正文字号, weight: "bold")
-      #set par(first-line-indent: 0pt)
-      #it
-    ]
+    show heading.where(level: 2): set text(font: 字体, size: 正文字号, weight: "bold")
+    show heading.where(level: 2): set block(above: 1.3em, below: 0.65em)
+
+    show heading.where(level: 3): set text(font: 字体, size: 正文字号, weight: "bold")
+    show heading.where(level: 3): set block(above: 1.1em, below: 0.55em)
 
     // 顶部大标题
-    if report_title != "" {
-      align(center)[
-        #v(0.2cm)
-        #text(font: 字体, size: 二号字号, weight: "bold")[#report_title]
-        #v(0.6cm)
-      ]
-    }
+    报告标题(report_title, 字体)
 
     // 顶部元数据栏（课程、日期、班级、姓名、学号）
-    block(width: 100%)[
-      #set text(font: 字体, size: 四号字号)
-      #set par(first-line-indent: 0pt, leading: 1.2em)
-      #grid(
-        columns: (auto, 1fr, 3em, auto, 1fr),
-        align: horizon,
-        [课程名称：], 下划线字段(report_course),
-        [],
-        [实验日期：], 下划线字段(report_date),
-      )
-      #v(0.4cm)
-      #grid(
-        columns: (auto, 1fr, 2em, auto, 1fr, 2em, auto, 1fr),
-        align: horizon,
-        [班#h(1em)级：], 下划线字段(report_class),
-        [],
-        [姓#h(1em)名：], 下划线字段(report_name),
-        [],
-        [学#h(1em)号：], 下划线字段(report_id),
-      )
-      #v(0.8cm)
-    ]
+    报告信息栏((
+      课程: report_course,
+      日期: report_date,
+      班级: report_class,
+      姓名: report_name,
+      学号: report_id,
+    ))
 
     // 正文段落默认设置（首行缩进 2 字符，两端对齐）
     set par(justify: true, first-line-indent: 2em)
@@ -123,15 +100,7 @@
       ("源代码", if 源代码 != none and 源代码 != [] { 源代码块(源代码, lang: "cpp") } else { none }),
       ("实验结果分析及心得体会", report_feedback),
     )
-    let sec_idx = 0
-    for (sec_title, sec_content) in 结构化小节 {
-      if sec_content != none and sec_content != [] {
-        sec_idx += 1
-        let num_str = if sec_idx <= 序号列表.len() { 序号列表.at(sec_idx - 1) } else { str(sec_idx) }
-        [= #num_str、#sec_title]
-        sec_content
-      }
-    }
+    报告小节(结构化小节, 序号列表)
 
     // 自由正文内容
     if body != none and body != [] {
