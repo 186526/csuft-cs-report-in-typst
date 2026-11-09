@@ -1,6 +1,6 @@
 # CSUFT CS Typst 实验报告模板
 
-中南林业科技大学计算机相关课程的 Typst 实验报告模板，支持 C、C++、数据结构和 Java，输出 PDF。
+中南林业科技大学计算机相关课程的 Typst 实验报告模板，支持 C、C++、数据结构、Java 和计算机导论，输出 PDF。
 
 ## 快速开始
 
@@ -27,6 +27,7 @@ PDF 输出到 `build/demo/`。各模板均需要 `config.typ`，该文件由 Git
 | C++ 程序设计 | [demo/c++.typ](demo/c++.typ) | [lib/c++-report.typ](lib/c++-report.typ) |
 | 数据结构 | [demo/data-stru.typ](demo/data-stru.typ) | [lib/data-stru-report.typ](lib/data-stru-report.typ) |
 | Java 程序设计 | [demo/java.typ](demo/java.typ) | [lib/java-report.typ](lib/java-report.typ) |
+| 计算机导论 | [demo/computer-basis.typ](demo/computer-basis.typ) | [lib/computer-basis-report.typ](lib/computer-basis-report.typ) |
 
 复制对应 demo 到 `reports/`，按示例填写实验内容。各模板参数不同，正文、表格及代码的具体写法见示例；多个源码文件使用 C 示例中的内容块写法。复制时同步调整 `read(...)` 和图片的相对路径，路径以调用所在的 `.typ` 文件为基准。
 
@@ -40,6 +41,10 @@ cp demo/java.typ reports/my-java.typ
 ```
 
 输出为 `build/reports/my-java.pdf`。报告中的 C、C++、Java 源码仅作为文本展示。
+
+Java 模板使用 A4 页面，左右边距为 2.5 cm，正文宽 16 cm。正文为 12pt 小四宋体，行高 18pt、段距 6pt，统一顶格、自然左对齐，列表使用紧凑的悬挂缩进和 4pt 条目间距，强调文字使用常规黑体；信息栏使用相同字号，教师下划线限制宽度。标题按级别设置递减间距，行内代码使用正文的 90% 字号，9pt 源码保留行号和高亮、隐藏语言标签；10pt 终端输出采用浅底与细左边线，长内容可以跨页。各小节默认连续排版，传入 `分页小节: ("实验练习",)` 可在“实验练习”前另起一页。
+
+计算机导论模板按《计算机导论》单个实验报告模板排版：标题小三号黑体加粗居中，实验日期与地点同一行，均为下划线字段；`实验目的`、`实验内容`、`实验过程记录`、`实验小结` 四节依次编号为一至四，标题小四号黑体加粗、段前段后各 0.5 行，正文五号宋体 1.5 倍行距；页边距上下 2.54 cm、左右 3.17 cm。`地点` 留空时取 `config.typ` 中的 `学生信息.实验室`。
 
 ## 构建与预览
 

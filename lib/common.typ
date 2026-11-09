@@ -60,11 +60,19 @@
 // ============================================================
 //  代码块样式（Zebraw 隔行换色与行号分割线）
 // ============================================================
-#let 代码块样式(body) = {
+#let 代码块样式(
+  body,
+  size: 代码字号,
+  background: luma(245),
+  above: 0.65em,
+  inset: (x: 8pt, y: 2.8pt),
+  lang: true,
+  output-style: (:),
+) = {
   show raw.where(block: true): it => {
     // 代码块使用独立行高（cap-height→baseline），不受正文 1em 字盒与段距影响，
     // 这样不同正文号的模板代码行距一致，且不会被撑得过松。
-    set text(font: 代码字体, size: 代码字号, top-edge: "cap-height", bottom-edge: "baseline")
+    set text(font: 代码字体, size: size, top-edge: "cap-height", bottom-edge: "baseline")
     show grid: g => {
       if g.columns == () and g.stroke == (:) {
         if (
@@ -85,26 +93,27 @@
         g
       }
     }
+    set par(first-line-indent: 0pt, justify: false)
     let is-code = it.lang != none and it.lang != "text" and it.lang != "txt"
     if is-code {
-      set block(above: 0.4em, below: 0.4em)
-      zebraw(
-        inset: (x: 8pt, y: 2.8pt),
-        lang: true,
-      )[#it]
+      set block(above: above, below: 0.9em)
+      zebraw(background-color: background, inset: inset, lang: lang)[#it]
     } else {
-      // 终端/报错/纯文本输出：无行号轻量控制台样式，整洁紧凑
-      set block(above: 0.25em, below: 0.25em)
-      block(
-        fill: rgb("#f8fafc"),
-        stroke: 0.5pt + rgb("#e2e8f0"),
-        radius: 3pt,
-        inset: (x: 8pt, y: 4pt),
+      let out-args = (
+        above: 8pt,
+        below: 10pt,
+        breakable: true,
+        fill: luma(248),
+        stroke: 0.5pt + luma(218),
+        radius: 2pt,
+        inset: (x: 10pt, y: 8pt),
         width: 100%,
-        clip: true,
+      ) + output-style
+      block(
+        ..out-args,
         {
-          set text(font: 代码字体, size: 0.9em)
-          set par(leading: 0.45em, justify: false)
+          set text(font: 代码字体, size: 10pt, top-edge: 字盒上, bottom-edge: 字盒下)
+          set par(leading: 0.35em, spacing: 0pt, hanging-indent: 0pt)
           it.lines.map(l => l.body).join([\ ])
         },
       )
@@ -200,9 +209,9 @@
   }
 }
 
-#let 报告信息栏(信息) = block(width: 100%)[
-  #set text(font: 字体, size: 四号字号)
-  #set par(first-line-indent: 0pt, leading: 1.2em)
+#let 报告信息栏(信息, size: 四号字号, leading: 1.2em, below: 0.8cm, teacher-width: 1fr) = block(width: 100%)[
+  #set text(font: 字体, size: size)
+  #set par(first-line-indent: 0pt, leading: leading)
   #grid(
     columns: (auto, 1fr, 3em, auto, 1fr),
     align: horizon,
@@ -222,13 +231,23 @@
   )
   #if "指导教师" in 信息 and 信息.指导教师 != "" {
     v(0.4cm)
-    grid(
-      columns: (auto, 1fr),
-      align: horizon,
-      [指导教师：], 下划线字段(信息.指导教师),
-    )
+    if "地点" in 信息 and 信息.地点 != "" {
+      grid(
+        columns: (auto, 1fr, 2em, auto, teacher-width),
+        align: horizon,
+        [指导教师：], 下划线字段(信息.指导教师),
+        [],
+        [地#h(1em)点：], 下划线字段(信息.地点),
+      )
+    } else {
+      grid(
+        columns: (auto, teacher-width),
+        align: horizon,
+        [指导教师：], 下划线字段(信息.指导教师),
+      )
+    }
   }
-  #v(0.8cm)
+  #v(below)
 ]
 
 #let 报告小节(结构化小节, 序号列表, 分页小节: ()) = {

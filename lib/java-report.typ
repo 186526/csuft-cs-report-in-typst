@@ -18,6 +18,7 @@
   姓名: none,
   学号: none,
   指导教师: none,
+  地点: none,
   信息: 学生信息,
   // 兼容别名
   title: none,
@@ -41,7 +42,7 @@
   总结: none,
   参考文献: none,
   // 格式控制
-  分页小节: ("实验练习",),
+  分页小节: (),
   // 接收额外参数（支持 #show: 实验报告.with(...) 传入的 positional body）
   ..args,
 ) = {
@@ -55,12 +56,13 @@
   let report_name = if name != none { name } else if 姓名 != none { 姓名 } else { 信息.姓名 }
   let report_id = if id != none { id } else if 学号 != none { 学号 } else { 信息.学号 }
   let report_teacher = if teacher != none { teacher } else if 指导教师 != none { 指导教师 } else if "指导教师" in 信息 { 信息.指导教师 } else { "" }
+  let report_place = if 地点 != none { 地点 } else if "实验室" in 信息 { 信息.实验室 } else { "" }
   let report_summary = if 实验总结 != none { 实验总结 } else if 总结 != none { 总结 } else { 心得体会 }
 
-  // 页面基准配置（A4 纸，页边距按规范：上 2.54cm，下 2.54cm，左 3.17cm，右 3.17cm；页脚阿拉伯数字居中）
+  // A4 正文宽 16cm，页脚阿拉伯数字居中。
   set page(
     paper: "a4",
-    margin: (top: 2.54cm, bottom: 2.54cm, x: 3.17cm),
+    margin: (top: 2.54cm, bottom: 2.54cm, x: 2.5cm),
     footer: context {
       let page_num = counter(page).display("1")
       // 显式指定字盒边界，避免继承正文字盒导致页码位置偏移
@@ -69,17 +71,35 @@
   )
   set text(lang: "zh")
 
-  // 正文样式（按规范：正文采用小4号宋体，1.5倍行距，首行缩进 2 字符）
+  // 12pt 字号配 6pt 行间留白，正文基线间距为 18pt。
   show: 正文样式.with(
     size: 小四字号,
-    leading: 一点五倍行距,
-    spacing: 0.8em,
-    list-spacing: 0.5em,
+    leading: 6pt,
+    spacing: 6pt,
+    list-spacing: 4pt,
   )
-  set par(justify: true, first-line-indent: 2em)
+  set par(justify: false, first-line-indent: 0pt)
+  set list(indent: 0pt, body-indent: 0.5em, tight: false, spacing: 4pt)
+  set enum(indent: 0pt, body-indent: 0.5em, tight: false, spacing: 4pt)
+  set strong(delta: 0)
+  show strong: set text(font: 黑体, weight: "regular")
 
-  // 代码块隔行换色与等宽字体规则
-  show: 代码块样式
+  show: 代码块样式.with(
+    size: 9pt,
+    background: luma(250),
+    inset: (top: 2.5pt, bottom: 2.5pt, left: 4pt, right: 4pt),
+    above: 0.45em,
+    lang: false,
+    output-style: (
+      above: 5pt,
+      below: 7pt,
+      fill: luma(250),
+      stroke: (left: 0.6pt + luma(190)),
+      radius: 0pt,
+      inset: (x: 8pt, y: 5pt),
+    ),
+  )
+  show raw.where(block: false): set text(size: 0.9em)
 
   // 插图居中
   show image: it => align(center, it)
@@ -90,27 +110,26 @@
   show figure.where(kind: table): set figure.caption(position: top)
   show figure.caption: it => text(font: 字体, size: 正文字号)[#it]
   show figure: set text(font: 字体, size: 正文字号)
-  show table: set table(inset: (x: 8pt, y: 6pt))
+  show table: set text(font: 字体, size: 10.5pt)
+  show table: set par(leading: 0.4em)
+  show table: set table(stroke: 0.45pt + luma(140), inset: (x: 7pt, y: 5pt))
 
-  // 标题级别样式（按规范）：
-  show heading: set par(first-line-indent: 0pt)
+  show math.equation: set text(font: ("New Computer Modern Math", ..字体), weight: "regular")
 
-  // 一级标题：小3号黑体，加粗
-  show heading.where(level: 1): set text(font: 黑体, size: 小三字号, weight: "bold")
-  show heading.where(level: 1): set block(above: 2.2em, below: 1.0em)
+  show heading: set text(font: 黑体, weight: "regular")
+  show heading: set par(first-line-indent: 0pt, justify: false, leading: 0.4em)
 
-  // 二级标题：4号黑体，加粗
-  show heading.where(level: 2): set text(font: 黑体, size: 四号字号, weight: "bold")
-  show heading.where(level: 2): set block(above: 1.8em, below: 0.85em)
+  show heading.where(level: 1): set text(font: 黑体, size: 小三字号, weight: "regular")
+  show heading.where(level: 1): set block(above: 1.4em, below: 0.65em)
 
-  // 三级标题：小4号黑体，加粗
-  show heading.where(level: 3): set text(font: 黑体, size: 小四字号, weight: "bold")
-  show heading.where(level: 3): set block(above: 2.0em, below: 0.75em)
+  show heading.where(level: 2): set text(font: 黑体, size: 四号字号, weight: "regular")
+  show heading.where(level: 2): set block(above: 1.1em, below: 0.45em)
 
-  // 顶部实验名称大标题（二号黑体居中）
+  show heading.where(level: 3): set text(font: 黑体, size: 小四字号, weight: "regular")
+  show heading.where(level: 3): set block(above: 1.1em, below: 0.65em)
+
   报告标题(report_title, 黑体)
 
-  // 顶部元数据栏（课程名称、实验日期、班级、姓名、学号、指导教师）
   报告信息栏((
     课程: report_course,
     日期: report_date,
@@ -118,7 +137,8 @@
     姓名: report_name,
     学号: report_id,
     指导教师: report_teacher,
-  ))
+    地点: report_place,
+  ), size: 小四字号, leading: 0.6em, below: 0.35cm, teacher-width: 12em)
 
   // 结构化小节渲染（遵循：目的、要求、内容、结果、练习、总结）
   let 序号列表 = ("一", "二", "三", "四", "五", "六", "七", "八", "九", "十")

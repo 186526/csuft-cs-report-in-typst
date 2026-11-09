@@ -6,3 +6,5 @@ lab*.typ
 
 project/
 .vscode
+
+tmp
